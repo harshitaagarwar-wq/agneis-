@@ -1,0 +1,175 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// =============================================================================
+// Phase 1: Auth, Tokens, Homepage Tiles, Search History, Settings
+// =============================================================================
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  apiTokens     ApiToken[]
+  tiles         Tile[]
+  searchHistory SearchHistory[]
+  settings      UserSettings?
+  documents     Document[]
+  agentRuns     AgentRun[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ApiToken {
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  tokenHash  String    @unique
+  prefix     String
+  scopes     String[]  @default(["mcp:read", "vault:write"])
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Tile {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  url       String
+  icon      String?
+  position  Int      @default(0)
+  pinned    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, position])
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  mode      String   @default("web")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model UserSettings {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  defaultSearchEngine String   @default("google")
+  defaultMode         String   @default("web")
+  theme               String   @default("dark")
+  showTiles           Boolean  @default(true)
+  keyboardShortcuts   Boolean  @default(true)
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================================
+// Stubbed Models per Approved Architecture (Phases 2-4)
+// =============================================================================
+
+model Document {
+  id           String                   @id @default(cuid())
+  userId       String
+  url          String
+  title        String
+  content      String                   @db.Text
+  searchVector Unsupported("tsvector")?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks DocumentChunk[]
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model DocumentChunk {
+  id             String                        @id @default(cuid())
+  documentId     String
+  chunkIndex     Int
+  content        String                        @db.Text
+  embedding      Unsupported("vector(1024)")?
+  embeddingModel String                        @default("voyage-3.5")
+  createdAt      DateTime                      @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, chunkIndex])
+}
+
+model AgentRun {
+  id           String   @id @default(cuid())
+  userId       String
+  threadId     String
+  checkpointId String?
+  status       String   @default("pending")
+  prompt       String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, threadId])
+}

@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Aegis Clipper",
+  "version": "0.1.0",
+  "description": "Smart page capture and RAG indexing companion for Aegis.",
+  "permissions": ["activeTab", "storage", "contextMenus"],
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  }
+}

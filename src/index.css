@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --sl-canvas: #000000;
+  --sl-surface: #121315;
+  --sl-gunmetal: #2b2d30;
+  --sl-silver-100: #e8e8e8;
+  --sl-silver-200: #c0c0c0;
+  --sl-silver-400: #8a8d91;
+  --sl-border: rgba(232, 232, 232, 0.14);
+  --sl-border-strong: rgba(232, 232, 232, 0.28);
+  --sl-glow: 0 0 28px rgba(232, 232, 232, 0.08);
+  --font-space-grotesk: "Space Grotesk", sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-jetbrains: "JetBrains Mono", monospace;
+}
+
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+html,
+body {
+  background-color: var(--sl-canvas);
+  color: var(--sl-silver-100);
+  font-family: var(--font-jakarta);
+  color-scheme: dark;
+}
+
+.aegis-wordmark {
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #e8e8e8 36%,
+    #c0c0c0 68%,
+    #7f8389 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 18px rgba(232, 232, 232, 0.14));
+}
+
+.aegis-search-shell {
+  background-color: #141517;
+  border: 1px solid var(--sl-border);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 12px 40px rgba(0, 0, 0, 0.65),
+    0 0 32px rgba(232, 232, 232, 0.05);
+  transition: border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aegis-search-shell:focus-within {
+  border-color: var(--sl-border-strong);
+  box-shadow: 0 0 0 1px rgba(232, 232, 232, 0.22), 0 16px 48px rgba(0, 0, 0, 0.8),
+    0 0 36px rgba(232, 232, 232, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

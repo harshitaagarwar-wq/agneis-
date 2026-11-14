@@ -1,0 +1,6 @@
+{
+  "name": "Silverlight",
+  "description": "Dark-themed, Google-style browsing homepage with an AI assistant, RAG-powered smart capture, and agentic features.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
